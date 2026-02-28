@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<web-app xmlns="https://jakarta.ee/xml/ns/jakartaee"
+	 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	 xsi:schemaLocation="https://jakarta.ee/xml/ns/jakartaee https://jakarta.ee/xml/ns/jakartaee/web-app_6_1.xsd"
+	 version="6.1">
+    <servlet>
+        <servlet-name>RESTfruitstore</servlet-name>
+        <servlet-class>
+            org.glassfish.jersey.servlet.ServletContainer
+        </servlet-class>
+        <init-param>
+            <param-name>jersey.config.server.provider.packages</param-name>
+            <param-value>com.eljovenxd.fruitstore.rest</param-value>
+            <!-- 
+                Aqui va el paquete donde se encuentran las clases Java con los servicios:
+            -->
+        </init-param>
+    </servlet>
+    <servlet-mapping>
+        <!-- Aqui va el nombre del servlet que pusiste al inicio: -->
+        <servlet-name>RESTfruitstore</servlet-name>
+        <!-- Aqui se define la ruta para llegar a los servicios: -->
+        <url-pattern>/api/*</url-pattern>
+    </servlet-mapping>
+</web-app>

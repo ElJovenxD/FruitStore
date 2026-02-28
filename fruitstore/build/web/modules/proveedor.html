@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <title>FruitStore - Proveedores</title>
+    <meta charset="UTF-8"> 
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../style/bootstrap/css/bootstrap.css">
+    <link rel="stylesheet" href="../style/style.css" type="text/css">
+    <link rel="stylesheet" href="../style/sweetalert2/sweetalert2.min.css">
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="principal.html">Fruit Store</a>
+            <div class="collapse navbar-collapse">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <li class="nav-item">
+                        <a class="nav-link" href="producto.html">Productos</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="categoria.html">Categorías</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="vendedor.html">Vendedores</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="venta.html">Ventas</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="proveedor.html">Proveedores</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="compra.html">Compras</a>
+                    </li>
+                </ul>
+                <button class="btn btn-outline-danger" onclick="logout()">Salir</button>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <div class="card p-4 mb-4 shadow-sm">
+            <h3>Detalle de Proveedor</h3>
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label class="form-label">Nombre Comercial</label>
+                    <input id="txtNombre" type="text" class="form-control" placeholder="Nombre del contacto o empresa">
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Razón Social</label>
+                    <input id="txtRazonSocial" type="text" class="form-control" placeholder="Nombre legal">
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">RFC</label>
+                    <input id="txtRfc" type="text" class="form-control">
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Teléfono Móvil</label>
+                    <input id="txtTelMovil" type="text" class="form-control">
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Email</label>
+                    <input id="txtEmail" type="email" class="form-control">
+                </div>
+                <div class="col-md-12">
+                    <label class="form-label">Dirección</label>
+                    <input id="txtDireccion" type="text" class="form-control">
+                </div>
+            </div>
+            
+            <div class="mt-3 text-center">
+                <button class="btn btn-primary" onclick="guardar()">💾 Guardar</button>
+                <button class="btn btn-danger" onclick="eliminar()">🗑️ Eliminar</button>
+                <button class="btn btn-success" onclick="limpiar()">✨ Nuevo</button>
+            </div>
+        </div>
+
+        <div class="card p-4 shadow-sm">
+            <h3>Listado de Proveedores</h3>
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Nombre</th>
+                            <th>Razón Social</th>
+                            <th>RFC</th>
+                            <th>Teléfono</th>
+                            <th>Estatus</th>
+                            <th class="text-center">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tbodyProveedores">
+                        </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script src="../style/sweetalert2/sweetalert2.all.min.js"></script>
+    <script src="../js/fruitstore_sec.js"></script>
+    <script src="../style/bootstrap/js/bootstrap.bundle.min.js"></script>
+    
+    <script type="module">
+        import { inicializarModulo } from '../js/proveedor.js';
+        
+        document.addEventListener("DOMContentLoaded", () => {
+            inicializarModulo();
+        });
+    </script>
+</body>
+</html>

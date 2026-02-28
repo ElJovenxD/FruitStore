@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <title>FruitStore - Clientes</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../style/bootstrap/css/bootstrap.css">
+    <link rel="stylesheet" href="../style/style.css" type="text/css">
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="principal.html">Fruit Store</a>
+            <div class="collapse navbar-collapse">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <li class="nav-item">
+                        <a class="nav-link" href="producto.html">Productos</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="categoria.html">Categorías</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="cliente.html">Vendedores</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="venta.html">Ventas</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="proveedor.html">Proveedores</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="compra.html">Compras</a>
+                    </li>
+                </ul>
+                <button class="btn btn-outline-danger" onclick="logout()">Salir</button>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-4 mb-5">
+    <div class="card p-4 mb-4 shadow-sm">
+        <h3>Detalle del Registro</h3>
+        <hr>
+        <div class="row g-3">
+            <div class="col-md-2">
+                <label class="form-label">ID Vendedor</label>
+                <input id="txtId" type="text" class="form-control" readonly placeholder="Automatico">
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">Nombre Completo</label>
+                <input id="txtNombre" type="text" class="form-control">
+            </div>
+            <div class="col-md-2">
+                <label class="form-label">Género</label>
+                <select id="cmbGenero" class="form-select">
+                    <option value="M">Masculino</option>
+                    <option value="F">Femenino</option>
+                    <option value="O">Otro</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <label class="form-label">Estatus</label>
+                <input id="txtEstatus" type="text" class="form-control" readonly value="Activo">
+            </div>
+
+            <div class="col-md-3">
+                <label class="form-label">Fecha Nacimiento</label>
+                <input id="txtFechaNac" type="date" class="form-control">
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">Fecha Alta</label>
+                <input id="txtFechaAlta" type="date" class="form-control" readonly>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">Teléfono</label>
+                <input id="txtTelefono" type="text" class="form-control">
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">Email</label>
+                <input id="txtEmail" type="email" class="form-control">
+            </div>
+
+            <div class="col-md-4">
+                <label class="form-label">Calle</label>
+                <input id="txtCalle" type="text" class="form-control">
+            </div>
+            <div class="col-md-2">
+                <label class="form-label">Núm. Ext</label>
+                <input id="txtNumExt" type="text" class="form-control">
+            </div>
+            <div class="col-md-2">
+                <label class="form-label">Núm. Int</label>
+                <input id="txtNumInt" type="text" class="form-control">
+            </div>
+            <div class="col-md-4">
+                <label class="form-label">Colonia</label>
+                <input id="txtColonia" type="text" class="form-control">
+            </div>
+
+            <div class="col-md-2">
+                <label class="form-label">C.P.</label>
+                <input id="txtCp" type="text" class="form-control">
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">Ciudad</label>
+                <input id="txtCiudad" type="text" class="form-control">
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">Estado</label>
+                <input id="txtEstado" type="text" class="form-control">
+            </div>
+            <div class="col-md-4">
+                <label class="form-label">País</label>
+                <input id="txtPais" type="text" class="form-control">
+            </div>
+        </div>
+        <div class="mt-4 text-center">
+            <button class="btn btn-primary" onclick="guardar()">💾 Guardar</button>
+            <button class="btn btn-success" onclick="limpiar()">✨ Nuevo</button>
+            <button class="btn btn-danger" onclick="eliminar()">🗑️ Eliminar</button>
+        </div>
+    </div>
+    <div class="card p-4 shadow-sm">
+        <h3>Listado General</h3>
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead class="table-light">
+                    <tr>
+                        <th>Nombre</th>
+                        <th>Email</th>
+                        <th>Ciudad</th>
+                        <th>Teléfono</th>
+                        <th class="text-center">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody id="tbodyVendedores"></tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+    <script src="../style/sweetalert2/sweetalert2.all.min.js"></script>
+    <script src="../style/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script src="../js/fruitstore_sec.js"></script>
+
+    <script type="module">
+        import { inicializarModulo } from '../js/vendedor.js';
+        document.addEventListener("DOMContentLoaded", () => {
+            inicializarModulo();
+        });
+    </script>
+</body>
+</html>

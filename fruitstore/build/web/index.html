@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="es">
+    <head>
+        <title>FruitStore - Inicio de Sesión</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="author" content="Jose de Jesus Martin Zuñiga">
+        <link rel="stylesheet" href="style/bootstrap/css/bootstrap.css">
+        <link rel="stylesheet" href="style/bootstrap/css/bootstrap-grid.css"/>
+        <link rel="stylesheet" href="style/bootstrap/css/bootstrap-utilities.css"/>
+        <link rel="stylesheet" href="style/style.css" type="text/css">
+        <link rel="stylesheet" href="style/sweetalert2.min.css">
+        
+        <style>
+            /* Estilos específicos para el fondo y la tarjeta flotante */
+            body {
+                background-image: url('img/frutas.svg'); /* Ajusta la ruta a tu imagen */
+                background-size: cover;
+                background-position: center;
+                background-attachment: fixed;
+                height: 100vh;
+                display: flex;
+                align-items: center;
+            }
+            .card-login {
+                background-color: rgba(255, 255, 255, 0.9);
+                border-radius: 1rem;
+                border: none;
+                box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            }
+            .vertical-divider {
+                border-right: 1px solid #dee2e6;
+            }
+            @media (max-width: 768px) {
+                .vertical-divider { border-right: none; border-bottom: 1px solid #dee2e6; }
+            }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-lg-8 col-md-10">
+                    <div class="card card-login p-4">
+                        <div class="row align-items-center">
+                            
+                            <div class="col-md-5 text-center vertical-divider py-3">
+                                <img src="img/usuario.png" alt="Usuario" class="img-fluid" style="max-width: 150px;">
+                            </div>
+
+                            <div class="col-md-7 py-3">
+                                <h3 class="text-secondary text-center mb-4">FruitStore - Inicio de Sesión</h3>
+                                <form>
+                                    <div class="mb-3">
+                                        <label for="txtUsuario" class="form-label text-muted">Nombre de Usuario:</label>
+                                        <input id="txtUsuario" type="text" class="form-control" placeholder="Ingrese su usuario">
+                                    </div>
+                                    <div class="mb-4">
+                                        <label for="txtContrasenia" class="form-label text-muted">Contraseña:</label>
+                                        <input id="txtContrasenia" type="password" class="form-control" placeholder="********">
+                                    </div>
+                                    <div class="text-center">
+                                        <button type="button" class="btn btn-outline-success px-4" onclick="login()">
+                                            🖥️ Ingresar
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <script src="style/sweetalert2/sweetalert2.all.min.js"></script> 
+        <script src="style/bootstrap/js/bootstrap.bundle.min.js"></script>
+        <script src="js/fruitstore_sec.js"></script>
+    </body>
+</html>

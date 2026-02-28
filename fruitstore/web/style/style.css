@@ -1,0 +1,68 @@
+/* ==================================== */
+/* 1. Fondo y Tipografía Global         */
+/* ==================================== */
+body {
+    background-color: #FAF5E9; 
+    font-family: 'Quicksand', sans-serif;
+}
+
+/* ==================================== */
+/* 2. Componentes (Suavizado y Profundidad) */
+/* ==================================== */
+
+/* Suaviza las tarjetas de Bootstrap (Catálogo y Detalle) */
+.card {
+    border-radius: 12px; 
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1); 
+    transition: box-shadow 0.3s ease-in-out;
+}
+
+/* Estilo para los encabezados */
+.card-header span, h4 {
+    color: #4A6E49; 
+}
+
+/* Suavizar esquinas de campos y botones */
+.form-control, .btn {
+    border-radius: 8px;
+}
+
+/* Personalizar el botón de cerrar detalle (X) */
+.btn-danger {
+    background-color: #C33C54 !important; 
+    border-color: #C33C54 !important;
+}
+
+.btn-danger:hover {
+    background-color: #A32C44 !important;
+    border-color: #A32C44 !important;
+}
+
+/* ==================================== */
+/* 3. Interacción */
+/* ==================================== */
+
+/* Efecto Hover en la tabla (al pasar el mouse) */
+#tbodyPersonajes tr:hover {
+    background-color: rgba(74, 110, 73, 0.1); 
+    transition: background-color 0.3s ease-in-out;
+    cursor: pointer;
+}
+
+/* ==================================== */
+/* 4. Agregamos un fondo a los encabezados */
+/* ==================================== */
+.navbar {
+    background-image: url('../img/cielo.jpg'); 
+    background-size: cover; 
+    background-position: center; 
+    background-color: transparent !important;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* Ajusta el color del texto de navegación para que se vea sobre las nubes */
+.navbar-nav .nav-link {
+    color: #4A6E49 !important;
+    font-weight: bold;
+    text-shadow: 0.5px 0.5px 1px rgba(255, 255, 255, 0.8);
+}

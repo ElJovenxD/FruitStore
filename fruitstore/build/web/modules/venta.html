@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <title>FruitStore - Ventas</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../style/bootstrap/css/bootstrap.css">
+    <link rel="stylesheet" href="../style/style.css" type="text/css">
+    <link rel="stylesheet" href="../style/sweetalert2/sweetalert2.min.css">
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="principal.html">Fruit Store</a>
+            <div class="collapse navbar-collapse">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <li class="nav-item">
+                        <a class="nav-link" href="producto.html">Productos</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="categoria.html">Categorías</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="vendedor.html">Vendedores</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="venta.html">Ventas</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="proveedor.html">Proveedores</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="compra.html">Compras</a>
+                    </li>
+                </ul>
+                <button class="btn btn-outline-danger" onclick="logout()">Salir</button>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-4 mb-5">
+        <div class="card p-4 mb-4 shadow-sm border-success">
+            <h3 class="text-success text-center">🛒 Nueva Venta</h3>
+            <hr>
+            <div class="row g-3 align-items-end">
+                <div class="col-md-5">
+                    <label class="form-label">Producto</label>
+                    <select id="cmbProducto" class="form-select"></select>
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label">Cant. (Kg)</label>
+                    <input id="txtCantidad" type="number" class="form-control" value="1">
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Descuento ($)</label>
+                    <input id="txtDescuento" type="number" class="form-control" value="0">
+                </div>
+                <div class="col-md-2 text-center">
+                    <button class="btn btn-success w-100" onclick="agregarProductoALista()">➕ Agregar</button>
+                </div>
+            </div>
+
+            <div class="table-responsive mt-4">
+                <table class="table table-sm table-hover table-bordered">
+                    <thead class="table-dark text-center">
+                        <tr>
+                            <th>Producto</th>
+                            <th>Cantidad</th>
+                            <th>Precio Venta</th>
+                            <th>Descuento</th>
+                            <th>Subtotal</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tbodyDetalleVentaTemporal"></tbody>
+                </table>
+            </div>
+            <div class="text-end mt-2">
+                <h4>Total Venta: <span class="text-primary">$<span id="spnTotalVenta">0.00</span></span></h4>
+                <button class="btn btn-primary btn-lg mt-3" onclick="guardarVenta()">💾 Finalizar Venta</button>
+            </div>
+        </div>
+
+        <div class="card p-4 shadow-sm">
+            <h3>📜 Historial de Ventas</h3>
+            <div class="table-responsive mt-3">
+                <table class="table table-hover">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Folio (ID)</th>
+                            <th>Fecha</th>
+                            <th>Vendedor</th>
+                            <th class="text-center">Detalle</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tbodyVentas"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script src="../style/sweetalert2/sweetalert2.all.min.js"></script>
+    <script src="../style/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script src="../js/fruitstore_sec.js"></script>
+    <script type="module">
+        import { inicializarModulo } from '../js/venta.js';
+        document.addEventListener("DOMContentLoaded", () => { inicializarModulo(); });
+    </script>
+</body>
+</html>
