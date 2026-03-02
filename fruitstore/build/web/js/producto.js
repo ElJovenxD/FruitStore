@@ -1,11 +1,11 @@
 let productos = [];
 let categorias = [];
-let idProductoSeleccionado = 0; // Se declara una sola vez al inicio
+let idProductoSeleccionado = 0;
 
 export async function inicializarModulo() {
+    await cargarCategorias(); 
     await consultarProductos();
 }
-
 async function consultarProductos() {
     let url = "../api/producto/getAll";
     let resp = await fetch(url);
@@ -43,22 +43,19 @@ function fillTableProductos() {
     document.getElementById("tbodyProductos").innerHTML = contenido;
 }
 
-// ÚNICA VERSIÓN de mostrarDetalleProducto
 window.mostrarDetalleProducto = function(index) {
     let p = productos[index];
-    // Guardamos el ID para saber que estamos EDITANDO y no CREANDO
     idProductoSeleccionado = p.idProducto || p.id; 
 
     document.getElementById("txtNombre").value = p.nombre;
     document.getElementById("txtPrecio").value = p.precioVenta;
-    // Asignamos el ID de la categoría al select
     document.getElementById("cmbCategoria").value = p.categoria.id;
     
     console.log("Editando ID:", idProductoSeleccionado);
 };
 
 window.limpiar = function() {
-    idProductoSeleccionado = 0; // IMPORTANTE: resetear a 0 para permitir nuevos
+    idProductoSeleccionado = 0;
     document.getElementById("txtNombre").value = "";
     document.getElementById("txtPrecio").value = "";
     document.getElementById("cmbCategoria").value = "1";
@@ -167,5 +164,27 @@ async function ejecutarEliminacion() {
         Swal.fire("Eliminado", "El producto se ha desactivado.", "success");
         consultarProductos();
         limpiar();
+    }
+}
+
+export async function cargarCategorias() {
+    const url = "../api/categoria/getAll";
+    const select = document.getElementById("cmbCategoria");
+
+    try {
+        let resp = await fetch(url, { method: "POST" });
+        let datos = await resp.json();
+
+        select.innerHTML = '<option value="0">-- Seleccione una categoría --</option>';
+
+        datos.forEach(c => {
+            let opt = document.createElement("option");
+            opt.value = c.id; 
+            opt.innerHTML = c.nombre; 
+            select.appendChild(opt);
+        });
+        categoriasCargadas = datos;
+    } catch (e) {
+        console.error("Error al cargar categorías:", e);
     }
 }

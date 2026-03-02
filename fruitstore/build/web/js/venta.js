@@ -144,7 +144,7 @@ export async function refrescarTablaVentas() {
                     <td>${v.vendedor ? v.vendedor.nombre : 'N/A'}</td>
                     <td class="text-center">
                         <button class="btn btn-sm btn-outline-primary" onclick="verDetalleVenta(${v.id})">
-                            👁️ Ver Detalle
+                            Ver Detalle
                         </button>
                     </td>
                 </tr>`;

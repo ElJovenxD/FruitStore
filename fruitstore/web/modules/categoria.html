@@ -4,10 +4,7 @@
     <title>FruitStore - Categorías</title>
     <meta charset="UTF-8"> 
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="author" content="Jose de Jesus Martin Zuñiga">
-    <link rel="stylesheet" href="../style/bootstrap/css/bootstrap.css">
-    <link rel="stylesheet" href="../style/bootstrap/css/bootstrap-grid.css"/>
-    <link rel="stylesheet" href="../style/bootstrap/css/bootstrap-utilities.css"/>
+    <link rel="stylesheet" href="../style/bootstrap/css/bootstrap.min.css">
     <link rel="stylesheet" href="../style/style.css" type="text/css">
 </head>
 <body>
@@ -16,41 +13,28 @@
             <a class="navbar-brand" href="principal.html">Fruit Store</a>
             <div class="collapse navbar-collapse">
                 <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                    <li class="nav-item">
-                        <a class="nav-link" href="producto.html">Productos</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link active" href="categoria.html">Categorías</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="vendedor.html">Vendedores</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="venta.html">Ventas</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="proveedor.html">Proveedores</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="compra.html">Compras</a>
-                    </li>
+                    <li class="nav-item"><a class="nav-link" href="producto.html">Productos</a></li>
+                    <li class="nav-item"><a class="nav-link" href="categoria.html">Categorías</a></li>
+                    <li class="nav-item"><a class="nav-link" href="vendedor.html">Vendedores</a></li>
+                    <li class="nav-item"><a class="nav-link" href="venta.html">Ventas</a></li>
+                    <li class="nav-item"><a class="nav-link" href="proveedor.html">Proveedores</a></li>
+                    <li class="nav-item"><a class="nav-link active" href="compras.html">Compras</a></li>
                 </ul>
                 <button class="btn btn-outline-danger" onclick="logout()">Salir</button>
             </div>
         </div>
     </nav>
-
-    <div class="container mt-4">
-        <div class="card p-4 mb-4 shadow-sm">
-            <h3>Detalle de Categoría</h3>
+    <div class="container mt-5">
+        <div class="card p-4 shadow-sm mb-4">
+            <h2 class="text-center">Gestión de Categorías</h2>
             <div class="row g-3">
                 <div class="col-md-2">
                     <label class="form-label">ID</label>
-                    <input id="txtIdCategoria" type="text" class="form-control" readonly>
+                    <input type="text" id="txtIdCategoria" class="form-control" readonly>
                 </div>
                 <div class="col-md-10">
-                    <label class="form-label">Nombre de la Categoría</label>
-                    <input id="txtNombre" type="text" class="form-control">
+                    <label class="form-label">Nombre de Categoría</label>
+                    <input type="text" id="txtNombre" class="form-control">
                 </div>
             </div>
             <div class="mt-3 text-center">
@@ -74,20 +58,12 @@
             </table>
         </div>
     </div>
+
     <script src="../style/sweetalert2/sweetalert2.all.min.js"></script>
-    <script src="../js/fruitstore_sec.js"></script> <script src="../js/categoria.js"></script>
-    <script src="../style/bootstrap/js/bootstrap.bundle.min.js"></script>
-    <script>
-        if (!validarSesion()) {
-            document.body.style.display = "none";
-        }
-    </script>
+    <script src="../js/fruitstore_sec.js"></script>
     <script type="module">
         import { inicializarModulo } from '../js/categoria.js';
-        
-        document.addEventListener("DOMContentLoaded", () => {
-            inicializarModulo();
-        });
+        document.addEventListener("DOMContentLoaded", inicializarModulo);
     </script>
 </body>
 </html>

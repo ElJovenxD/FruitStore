@@ -3,10 +3,11 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
-            <file>file:/C:/FruitStore/03_ProyectoJava/fruitstore/web/js/fruitstore_sec.js</file>
-            <file>file:/C:/FruitStore/03_ProyectoJava/fruitstore/web/modules/principal.html</file>
-            <file>file:/C:/FruitStore/03_ProyectoJava/fruitstore/web/modules/categoria.html</file>
-            <file>file:/C:/FruitStore/03_ProyectoJava/fruitstore/web/index.html</file>
+            <file>file:/C:/FruitStore/03_ProyectoJava/fruitstore/web/modules/venta.html</file>
+            <file>file:/C:/FruitStore/03_ProyectoJava/fruitstore/web/js/venta.js</file>
+            <file>file:/C:/FruitStore/03_ProyectoJava/fruitstore/web/js/producto.js</file>
+            <file>file:/C:/FruitStore/03_ProyectoJava/fruitstore/web/js/categoria.js</file>
+            <file>file:/C:/FruitStore/03_ProyectoJava/fruitstore/web/js/compra.js</file>
         </group>
     </open-files>
 </project-private>
