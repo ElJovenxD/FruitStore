@@ -98,14 +98,18 @@
 
     <script src="../style/sweetalert2/sweetalert2.all.min.js"></script>
     <script src="../js/fruitstore_sec.js"></script>
-    <script src="../style/bootstrap/js/bootstrap.bundle.min.js"></script>
-    
+    <script src="../style/bootstrap/js/bootstrap.bundle.min.js"></script> 
     <script type="module">
         import { inicializarModulo } from '../js/proveedor.js';
         
         document.addEventListener("DOMContentLoaded", () => {
             inicializarModulo();
         });
+    </script>
+    <script>
+        if (!validarSesion()) {
+            document.body.style.display = "none";
+        }
     </script>
 </body>
 </html>

@@ -35,7 +35,11 @@
                         <a class="nav-link" href="compra.html">Compras</a>
                     </li>
                 </ul>
-                <button class="btn btn-outline-danger" onclick="logout()">Salir</button>
+                <div class="collapse navbar-collapse">
+                    <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                        </ul>
+                    <button class="btn btn-outline-danger" onclick="logout()">Salir</button>
+                </div>
             </div>
         </div>
     </nav>
@@ -46,5 +50,10 @@
         <script src="../js/fruitstore_sec.js"></script>
         <script src="../style/bootstrap/js/bootstrap.min.js"></script>
         <script src="../style/bootstrap/js/bootstrap.bundle.min.js"></script>
+        <script>
+        if (!validarSesion()) {
+            document.body.style.display = "none";
+        }
+        </script>
 </body>
 </html>

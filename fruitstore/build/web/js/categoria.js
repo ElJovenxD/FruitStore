@@ -3,6 +3,13 @@ let idCategoriaSeleccionada = 0;
 
 export async function inicializarModulo() {
     await consultarCategorias();
+    if (!window.validarSesion()) {
+        return; 
+    }
+
+    // Si pasó la validación, cargamos el módulo normalmente
+    await consultarVendedores();
+    limpiar();
 }
 
 async function consultarCategorias() {

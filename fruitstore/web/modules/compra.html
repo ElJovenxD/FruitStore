@@ -102,5 +102,10 @@
         import { inicializarModulo } from '../js/compra.js';
         document.addEventListener("DOMContentLoaded", () => { inicializarModulo(); });
     </script>
+    <script>
+        if (!validarSesion()) {
+            document.body.style.display = "none";
+        }
+    </script>
 </body>
 </html>

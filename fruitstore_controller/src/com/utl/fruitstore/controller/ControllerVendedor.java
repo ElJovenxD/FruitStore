@@ -89,7 +89,7 @@ public class ControllerVendedor
     // Método para obtener todos los vendedores (ya lo tenías)
     public List<Vendedor> getAll(String filtro) throws Exception
     {
-        String sql = "SELECT * FROM v_vendedor ORDER BY nombre ASC";
+        String sql = "SELECT * FROM v_vendedor WHERE estatus = 1 ORDER BY nombre ASC";
         ConexionMySQL connMySQL = new ConexionMySQL();
         Connection conn = connMySQL.open();
         PreparedStatement pstmt = conn.prepareStatement(sql);
