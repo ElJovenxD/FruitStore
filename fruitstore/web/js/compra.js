@@ -1,5 +1,7 @@
 let compras = [];
-let productosAgregados = []; // Lista temporal para el detalle de la compra
+let productosAgregados = []; 
+// SOLUCIÓN AL ERROR: Declaramos la variable globalmente
+let productosBase = []; 
 
 /**
  * Inicializa el módulo cargando proveedores, productos e historial.
@@ -27,23 +29,32 @@ async function cargarProveedores() {
 }
 
 /**
- * Llena el combo de productos desde el servidor.
+ * Llena el combo de productos y guarda la lista en productosBase.
  */
 async function cargarProductos() {
     let url = "../api/producto/getAll";
     let resp = await fetch(url);
-    let productos = await resp.json();
+    // Ahora productosBase ya está declarada y no dará error
+    productosBase = await resp.json(); 
     
     let html = '<option value="0" selected disabled>Seleccione un producto...</option>';
-    productos.forEach(p => {
+    productosBase.forEach(p => {
         html += `<option value="${p.id}">${p.nombre}</option>`;
     });
     document.getElementById("cmbProducto").innerHTML = html;
+
+    // EVENTO: Al cambiar de producto, mostramos su precio de venta actual
+    document.getElementById("cmbProducto").addEventListener("change", function() {
+        let idSel = this.value;
+        let prod = productosBase.find(p => p.id == idSel);
+        if (prod) {
+            // Ajustado al ID 'txtPrecioVenta' que tienes en tu HTML
+            let inputVenta = document.getElementById("txtPrecioVenta");
+            if (inputVenta) inputVenta.value = prod.precioVenta;
+        }
+    });
 }
 
-/**
- * Agrega un producto a la tabla temporal de detalles.
- */
 window.agregarProductoALista = function() {
     let idProd = document.getElementById("cmbProducto").value;
     let combo = document.getElementById("cmbProducto");
@@ -56,10 +67,9 @@ window.agregarProductoALista = function() {
         return;
     }
 
-    // Agregar al arreglo temporal
     productosAgregados.push({
         producto: { id: parseInt(idProd), nombre: nombreProd },
-        kilos: parseInt(cant),
+        kilos: parseFloat(cant), 
         precioCompra: parseFloat(precio),
         descuento: 0
     });
@@ -70,11 +80,9 @@ window.agregarProductoALista = function() {
     document.getElementById("cmbProducto").value = "0";
     document.getElementById("txtCantidad").value = "";
     document.getElementById("txtPrecioCompra").value = "";
+    document.getElementById("txtPrecioVenta").value = "";
 }
 
-/**
- * Dibuja la tabla visual de los productos que se van a comprar.
- */
 function actualizarTablaTemporal() {
     let html = "";
     let total = 0;
@@ -132,8 +140,7 @@ window.guardar = async function() {
             Swal.fire("Error", res.exception, "error");
         } else {
             Swal.fire("¡Éxito!", "La compra se ha registrado correctamente.", "success");
-            productosAgregados = [];
-            actualizarTablaTemporal();
+            limpiarFormulario(); 
             consultarCompras();
         }
     } catch (error) {
@@ -151,8 +158,8 @@ async function consultarCompras() {
                     <td>${c.fechaCompra}</td>
                     <td>${c.proveedor.nombre}</td>
                     <td class="text-center">
-                        <button class="btn btn-sm btn-info" onclick="verDetalleCompra(${c.idCompra})">
-                            👁️ Ver Productos
+                        <button class="btn btn-sm btn-outline-primary" onclick="verDetalleCompra(${c.idCompra})">
+                            Ver Productos
                         </button>
                     </td>
                 </tr>`;
@@ -173,6 +180,7 @@ window.verDetalleCompra = async function(id) {
     
     let total = 0;
     detalles.forEach(d => {
+        // Ajustamos para acceder a d.producto.nombre según tu API
         let sub = d.kilos * d.precioCompra;
         total += sub;
         tablaHtml += `<tr>
@@ -191,4 +199,16 @@ window.verDetalleCompra = async function(id) {
         width: '600px',
         confirmButtonText: 'Cerrar'
     });
+}
+
+function limpiarFormulario() {
+    document.getElementById("cmbProveedor").value = "0";
+    document.getElementById("cmbProducto").value = "0";
+    document.getElementById("txtCantidad").value = "";
+    document.getElementById("txtPrecioCompra").value = "";
+    if(document.getElementById("txtPrecioVenta")) 
+        document.getElementById("txtPrecioVenta").value = "";
+    
+    productosAgregados = [];
+    actualizarTablaTemporal();
 }

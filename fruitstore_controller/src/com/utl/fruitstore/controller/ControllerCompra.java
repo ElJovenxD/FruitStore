@@ -15,53 +15,69 @@ import java.util.List;
 public class ControllerCompra {
 
     /**
-     * Registra una compra maestra y todos sus productos asociados (detalles).
-     * Utiliza una transacción para asegurar la integridad de los datos.
+     * Registra una compra maestra, sus detalles e INCREMENTA el stock.
+     * Además, actualiza el precioCompra en la tabla Producto con el valor de esta compra.
      */
     public int insert(Compra c) throws Exception {
-        // Consultas para la tabla maestra y la tabla de detalle
         String sqlCompra = "INSERT INTO compra (idProveedor, fechaCompra) VALUES (?, ?)";
         String sqlDetalle = "INSERT INTO detalle_compra (idCompra, idProducto, kilos, precioCompra, descuento) VALUES (?, ?, ?, ?, ?)";
+        
+        // Esta sentencia actualiza la existencia sumando la nueva cantidad 
+        // y actualiza el costo base del producto.
+        String sqlActualizarStock = "UPDATE producto SET existencia = existencia + ?, precioCompra = ? WHERE idProducto = ?";
         
         ConexionMySQL connMySQL = new ConexionMySQL();
         Connection conn = connMySQL.open();
         
-        // Desactivamos el autoCommit para manejar la transacción manualmente
+        // Iniciamos transacción manual
         conn.setAutoCommit(false);
 
         try {
-            // 1. Insertar la Compra (Maestra)
+            // 1. Insertar la Compra (Cabecera)
             PreparedStatement pstmtC = conn.prepareStatement(sqlCompra, Statement.RETURN_GENERATED_KEYS);
             pstmtC.setInt(1, c.getProveedor().getIdProveedor());
             pstmtC.setString(2, c.getFechaCompra());
             pstmtC.executeUpdate();
 
-            // Recuperar el ID generado para la compra
+            // Recuperar ID de la compra
             ResultSet rs = pstmtC.getGeneratedKeys();
             if (rs.next()) {
                 c.setIdCompra(rs.getInt(1));
             }
 
-            // 2. Insertar los Detalles (Productos comprados)
+            // 2. Preparar los Statements para Detalle y Actualización de Producto
             PreparedStatement pstmtD = conn.prepareStatement(sqlDetalle);
+            PreparedStatement pstmtS = conn.prepareStatement(sqlActualizarStock);
+
             for (DetalleCompra dc : c.getDetalles()) {
-                pstmtD.setInt(1, c.getIdCompra()); // ID de la compra recién creada
+                // Registro del detalle de compra
+                pstmtD.setInt(1, c.getIdCompra());
                 pstmtD.setInt(2, dc.getProducto().getId());
-                pstmtD.setInt(3, dc.getKilos());
+                pstmtD.setDouble(3, dc.getKilos());
                 pstmtD.setFloat(4, dc.getPrecioCompra());
                 pstmtD.setFloat(5, dc.getDescuento());
-                pstmtD.addBatch(); // Agregamos al lote para ejecución eficiente
+                pstmtD.addBatch();
+
+                // Actualización de inventario y precio oficial
+                pstmtS.setDouble(1, dc.getKilos()); // Cantidad que entra
+                pstmtS.setDouble(2, dc.getPrecioCompra()); // Nuevo precio de costo
+                pstmtS.setInt(3, dc.getProducto().getId()); // ID del producto
+                pstmtS.addBatch();
             }
+
+            // Ejecución masiva
             pstmtD.executeBatch();
+            pstmtS.executeBatch();
             
-            // Si todo salió bien, confirmamos los cambios en la DB
+            // Confirmación de la transacción
             conn.commit();
             
             rs.close();
             pstmtC.close();
             pstmtD.close();
+            pstmtS.close();
         } catch (Exception e) {
-            // Si hubo un error, revertimos cualquier cambio hecho durante la transacción
+            // En caso de error, no se guarda nada
             conn.rollback();
             throw e;
         } finally {
@@ -70,9 +86,6 @@ public class ControllerCompra {
         return c.getIdCompra();
     }
 
-    /**
-     * Obtiene el historial de compras con el nombre del proveedor.
-     */
     public List<Compra> getAll() throws Exception {
         String sql = "SELECT C.*, P.nombre AS nombreProveedor " +
                      "FROM compra C " +
@@ -97,7 +110,6 @@ public class ControllerCompra {
             c.setProveedor(p);
             compras.add(c);
         }
-
         rs.close();
         pstmt.close();
         conn.close();
@@ -105,32 +117,32 @@ public class ControllerCompra {
     }
     
     public List<DetalleCompra> getDetalle(int idCompra) throws Exception {
-    String sql = "SELECT dc.*, p.nombre " +
-                 "FROM detalle_compra dc " +
-                 "INNER JOIN producto p ON dc.idProducto = p.idProducto " +
-                 "WHERE dc.idCompra = ?";
-    
-    List<DetalleCompra> detalles = new ArrayList<>();
-    ConexionMySQL connMySQL = new ConexionMySQL();
-    Connection conn = connMySQL.open();
-    PreparedStatement pstmt = conn.prepareStatement(sql);
-    pstmt.setInt(1, idCompra);
-    ResultSet rs = pstmt.executeQuery();
+        String sql = "SELECT dc.*, p.nombre " +
+                     "FROM detalle_compra dc " +
+                     "INNER JOIN producto p ON dc.idProducto = p.idProducto " +
+                     "WHERE dc.idCompra = ?";
+        
+        List<DetalleCompra> detalles = new ArrayList<>();
+        ConexionMySQL connMySQL = new ConexionMySQL();
+        Connection conn = connMySQL.open();
+        PreparedStatement pstmt = conn.prepareStatement(sql);
+        pstmt.setInt(1, idCompra);
+        ResultSet rs = pstmt.executeQuery();
 
-    while (rs.next()) {
-        DetalleCompra dc = new DetalleCompra();
-        dc.setKilos(rs.getInt("kilos"));
-        dc.setPrecioCompra(rs.getFloat("precioCompra"));
-        
-        Producto p = new Producto();
-        p.setNombre(rs.getString("nombre"));
-        dc.setProducto(p);
-        
-        detalles.add(dc);
+        while (rs.next()) {
+            DetalleCompra dc = new DetalleCompra();
+            dc.setKilos(rs.getInt("kilos"));
+            dc.setPrecioCompra(rs.getFloat("precioCompra"));
+            
+            Producto p = new Producto();
+            p.setNombre(rs.getString("nombre"));
+            dc.setProducto(p);
+            
+            detalles.add(dc);
+        }
+        rs.close();
+        pstmt.close();
+        conn.close();
+        return detalles;
     }
-    rs.close();
-    pstmt.close();
-    conn.close();
-    return detalles;
-}
 }

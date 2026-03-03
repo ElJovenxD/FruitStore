@@ -42,17 +42,21 @@
             <h3 class="text-primary">Detalle de Productos</h3>
             <hr>
             <div class="row g-3 align-items-end">
-                <div class="col-md-5">
+                <div class="col-md-3">
                     <label class="form-label">Producto</label>
                     <select id="cmbProducto" class="form-select"></select>
                 </div>
                 <div class="col-md-2">
-                    <label class="form-label">Cantidad (Kg)</label>
-                    <input id="txtCantidad" type="number" class="form-control" placeholder="0">
+                    <label class="form-label">Cant. (Kg)</label>
+                    <input id="txtCantidad" type="number" class="form-control">
                 </div>
-                <div class="col-md-3">
-                    <label class="form-label">Precio de Compra</label>
-                    <input id="txtPrecioCompra" type="number" class="form-control" placeholder="0.00">
+                <div class="col-md-2">
+                    <label class="form-label">Precio Compra</label>
+                    <input id="txtPrecioCompra" type="number" class="form-control">
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label">P. Venta Actual</label>
+                    <input id="txtPrecioVenta" type="number" class="form-control" readonly style="background-color: #f8f9fa;">
                 </div>
                 <div class="col-md-2">
                     <button class="btn btn-success w-100" onclick="agregarProductoALista()">➕ Agregar</button>
@@ -75,7 +79,7 @@
             </div>
             <div class="text-end mt-2">
                 <h4>Total Compra: <span class="text-success">$<span id="spnTotal">0.00</span></span></h4>
-                <button class="btn btn-primary btn-lg mt-3" onclick="guardar()">💾 Registrar Compra Completa</button>
+                <button class="btn btn-primary btn-lg mt-3" onclick="guardar()">💾 Registrar Compra</button>
             </div>
         </div>
 

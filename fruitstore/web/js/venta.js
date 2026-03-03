@@ -29,15 +29,22 @@ window.agregarProductoALista = async function() {
         return;
     }
 
-    // Consulta para obtener el precio de venta actual del producto
+    // Consultamos el producto para revisar su stock actual
     let resp = await fetch("../api/producto/getAll");
     let productos = await resp.json();
     let productoEncontrado = productos.find(p => p.id == idProd);
 
+    // NUEVA VALIDACIÓN DE EXISTENCIA
+    if (cant > productoEncontrado.existencia) {
+        Swal.fire("Stock Insuficiente", 
+            `Solo hay ${productoEncontrado.existencia} KG disponibles de ${nombreProd}.`, 
+            "error");
+        return;
+    }
+
     let precioVenta = productoEncontrado.precioVenta;
     let subtotal = (cant * precioVenta) - desc;
 
-    // Agregar al arreglo global listaProductosTemporal
     listaProductosTemporal.push({
         id: parseInt(idProd),
         nombre: nombreProd,

@@ -2,15 +2,15 @@ package com.utl.fruitstore.model;
 
 public class DetalleCompra {
     private Producto producto;
-    private int kilos;
+    private double kilos; // CAMBIADO de int a double
     private float precioCompra;
     private float descuento;
 
     // Getters y Setters
     public Producto getProducto() { return producto; }
     public void setProducto(Producto producto) { this.producto = producto; }
-    public int getKilos() { return kilos; }
-    public void setKilos(int kilos) { this.kilos = kilos; }
+    public double getKilos() { return kilos; } // Actualizar getter
+    public void setKilos(double kilos) { this.kilos = kilos; }
     public float getPrecioCompra() { return precioCompra; }
     public void setPrecioCompra(float precioCompra) { this.precioCompra = precioCompra; }
     public float getDescuento() { return descuento; }

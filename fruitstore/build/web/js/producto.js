@@ -1,16 +1,26 @@
+// Arreglos globales para almacenar la información
 let productos = [];
 let categorias = [];
+let categoriasCargadas = []; // Se declara para evitar el error de "undeclared variable"
 let idProductoSeleccionado = 0;
 
+/**
+ * Función principal que arranca el módulo.
+ */
 export async function inicializarModulo() {
     await cargarCategorias(); 
     await consultarProductos();
 }
+
+/**
+ * Obtiene la lista de productos desde el servidor.
+ */
 async function consultarProductos() {
     let url = "../api/producto/getAll";
     let resp = await fetch(url);
     let datos = await resp.json();
     
+    // Validaciones de error del servidor
     if (datos.error != null) {
         Swal.fire("", "Error al consultar productos", "warning");
         return;
@@ -25,13 +35,19 @@ async function consultarProductos() {
     fillTableProductos(); 
 }
 
+/**
+ * Dibuja la tabla de productos en el HTML.
+ */
 function fillTableProductos() {
     let contenido = '';
     for (let i = 0; i < productos.length; i++) {
         contenido += '<tr>' +
                         '<td>' + productos[i].nombre + '</td>' +
                         '<td>' + productos[i].categoria.nombre + '</td>' +
+                        '<td>$' + productos[i].precioCompra + '</td>' +
                         '<td>$' + productos[i].precioVenta + '</td>' +
+                        // Se agrega la columna de existencia con la unidad "KG"
+                        '<td>' + productos[i].existencia + ' KG</td>' + 
                         '<td>' + (productos[i].estatus == 1 ? "Activo" : "Inactivo") + '</td>' +
                         '<td>' + 
                             '<a href="#" onclick="mostrarDetalleProducto(' + i + ');">' +
@@ -43,24 +59,39 @@ function fillTableProductos() {
     document.getElementById("tbodyProductos").innerHTML = contenido;
 }
 
+/**
+ * Carga los datos de un producto seleccionado en el formulario superior.
+ */
 window.mostrarDetalleProducto = function(index) {
     let p = productos[index];
     idProductoSeleccionado = p.idProducto || p.id; 
 
+    // Llenado de campos
     document.getElementById("txtNombre").value = p.nombre;
-    document.getElementById("txtPrecio").value = p.precioVenta;
+    document.getElementById("txtPrecioCompra").value = p.precioCompra;
+    document.getElementById("txtPrecioVenta").value = p.precioVenta;
+    document.getElementById("txtExistencia").value = p.existencia;
     document.getElementById("cmbCategoria").value = p.categoria.id;
     
     console.log("Editando ID:", idProductoSeleccionado);
 };
 
+/**
+ * Limpia el formulario para un nuevo registro.
+ */
 window.limpiar = function() {
     idProductoSeleccionado = 0;
     document.getElementById("txtNombre").value = "";
-    document.getElementById("txtPrecio").value = "";
-    document.getElementById("cmbCategoria").value = "1";
+    document.getElementById("txtPrecioCompra").value = "";
+    document.getElementById("txtPrecioCompra").value = "";
+    document.getElementById("txtPrecioVenta").value = "";
+    document.getElementById("txtExistencia").value = "";
+    document.getElementById("cmbCategoria").value = "0";
 }
 
+/**
+ * Muestra la alerta de confirmación antes de guardar.
+ */
 window.guardar = function() {
     Swal.fire({
         title: '¿Deseas guardar los cambios?',
@@ -78,17 +109,25 @@ window.guardar = function() {
     });
 }
 
+/**
+ * Procesa el envío de datos al servidor.
+ */
 async function ejecutarGuardar() {
     let nombreInput = document.getElementById("txtNombre").value.trim();
-    let precio = document.getElementById("txtPrecio").value;
+    let pCompra = document.getElementById("txtPrecioCompra").value;
+    let pVenta = document.getElementById("txtPrecioVenta").value;
     let idCat = document.getElementById("cmbCategoria").value;
+    
+    // CORRECCIÓN: Se extrae la existencia del DOM para evitar el ReferenceError
+    let existencia = document.getElementById("txtExistencia").value; 
 
-    if (nombreInput === "" || precio === "") {
+    // Validación de campos obligatorios
+    if (nombreInput === "" || pVenta === "" || existencia === "" || idCat === "0") {
         Swal.fire("Campos incompletos", "Por favor, llena todos los campos.", "warning");
         return;
     }
 
-    // LÓGICA ANTIDUPLICADOS: Solo si es nuevo (id === 0)
+    // LÓGICA ANTIDUPLICADOS: Solo para registros nuevos
     if (idProductoSeleccionado === 0) {
         let existe = productos.some(p => p.nombre.toLowerCase() === nombreInput.toLowerCase());
         if (existe) {
@@ -97,10 +136,13 @@ async function ejecutarGuardar() {
         }
     }
 
+    // Construcción del objeto producto según el modelo Java
     let producto = {
         id: idProductoSeleccionado,
         nombre: nombreInput,
-        precioVenta: parseFloat(precio),
+        precioCompra: parseFloat(pCompra) || 0,
+        precioVenta: parseFloat(pVenta),
+        existencia: parseFloat(existencia),
         categoria: { id: parseInt(idCat) },
         estatus: 1
     };
@@ -127,6 +169,9 @@ async function ejecutarGuardar() {
     }
 }
 
+/**
+ * Lógica para eliminación lógica (cambio de estatus a 0).
+ */
 window.eliminar = function() {
     if (idProductoSeleccionado === 0) {
         Swal.fire("Aviso", "Primero selecciona un producto de la tabla.", "info");
@@ -167,6 +212,9 @@ async function ejecutarEliminacion() {
     }
 }
 
+/**
+ * Carga las categorías existentes para el selector (combo).
+ */
 export async function cargarCategorias() {
     const url = "../api/categoria/getAll";
     const select = document.getElementById("cmbCategoria");
@@ -183,7 +231,8 @@ export async function cargarCategorias() {
             opt.innerHTML = c.nombre; 
             select.appendChild(opt);
         });
-        categoriasCargadas = datos;
+        // CORRECCIÓN: Asignación a la variable global declarada al inicio
+        categoriasCargadas = datos; 
     } catch (e) {
         console.error("Error al cargar categorías:", e);
     }
