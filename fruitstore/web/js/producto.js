@@ -1,8 +1,13 @@
-// Arreglos globales para almacenar la información
+/**
+ * Módulo de Gestión de Productos
+ * Maneja el CRUD, validaciones y recuperación de registros inactivos.
+ */
+
+// --- Variables Globales ---
 let productos = [];
-let categorias = [];
-let categoriasCargadas = []; // Se declara para evitar el error de "undeclared variable"
+let categoriasCargadas = []; 
 let idProductoSeleccionado = 0;
+let mostrandoInactivos = false;
 
 /**
  * Función principal que arranca el módulo.
@@ -12,15 +17,16 @@ export async function inicializarModulo() {
     await consultarProductos();
 }
 
+// --- Sección de Consultas (Fetch) ---
+
 /**
- * Obtiene la lista de productos desde el servidor.
+ * Obtiene la lista de productos activos desde el servidor.
  */
 async function consultarProductos() {
     let url = "../api/producto/getAll";
     let resp = await fetch(url);
     let datos = await resp.json();
     
-    // Validaciones de error del servidor
     if (datos.error != null) {
         Swal.fire("", "Error al consultar productos", "warning");
         return;
@@ -36,7 +42,21 @@ async function consultarProductos() {
 }
 
 /**
- * Dibuja la tabla de productos en el HTML.
+ * Obtiene la lista de productos dados de baja (estatus 0).
+ */
+async function consultarInactivos() {
+    let url = "../api/producto/getAllInactivos";
+    let resp = await fetch(url);
+    let datos = await resp.json();
+    
+    productos = datos;
+    fillTableProductosInactivos();
+}
+
+// --- Sección de Interfaz (Tablas y DOM) ---
+
+/**
+ * Dibuja la tabla de productos activos.
  */
 function fillTableProductos() {
     let contenido = '';
@@ -46,12 +66,11 @@ function fillTableProductos() {
                         '<td>' + productos[i].categoria.nombre + '</td>' +
                         '<td>$' + productos[i].precioCompra + '</td>' +
                         '<td>$' + productos[i].precioVenta + '</td>' +
-                        // Se agrega la columna de existencia con la unidad "KG"
                         '<td>' + productos[i].existencia + ' KG</td>' + 
-                        '<td>' + (productos[i].estatus == 1 ? "Activo" : "Inactivo") + '</td>' +
+                        '<td><span class="badge bg-success">Activo</span></td>' +
                         '<td>' + 
                             '<a href="#" onclick="mostrarDetalleProducto(' + i + ');">' +
-                                '<i class="fas fa-eye text-info"></i> Modificar' +
+                                '<i class="fas fa-edit text-info"></i> Modificar' +
                             '</a>' +
                         '</td>' +
                      '</tr>';
@@ -60,90 +79,127 @@ function fillTableProductos() {
 }
 
 /**
- * Carga los datos de un producto seleccionado en el formulario superior.
+ * Dibuja la tabla de productos inactivos con opción de reactivación.
+ */
+function fillTableProductosInactivos() {
+    let contenido = '';
+    for (let i = 0; i < productos.length; i++) {
+        contenido += `<tr>
+            <td>${productos[i].nombre}</td>
+            <td>${productos[i].categoria.nombre}</td>
+            <td>$${productos[i].precioCompra}</td>
+            <td>$${productos[i].precioVenta}</td>
+            <td>${productos[i].existencia} KG</td>
+            <td><span class="badge bg-danger">Inactivo</span></td>
+            <td>
+                <button class="btn btn-sm btn-success" onclick="reactivarProducto(${productos[i].id})">
+                    <i class="fas fa-undo"></i> Reactivar
+                </button>
+            </td>
+        </tr>`;
+    }
+    document.getElementById("tbodyProductos").innerHTML = contenido;
+}
+
+/**
+ * Alterna la vista entre el catálogo activo y el de inactivos.
+ */
+window.toggleInactivos = function() {
+    mostrandoInactivos = !mostrandoInactivos;
+    const btn = document.getElementById("btnToggleInactivos");
+    
+    if (mostrandoInactivos) {
+        btn.innerHTML = '<i class="fas fa-eye"></i> Ver Activos';
+        btn.className = "btn btn-info btn-sm text-white"; 
+        consultarInactivos();
+    } else {
+        btn.innerHTML = '<i class="fas fa-eye-slash"></i> Ver Inactivos';
+        btn.className = "btn btn-outline-secondary btn-sm";
+        consultarProductos(); 
+    }
+}
+
+/**
+ * Carga los datos de un producto seleccionado en el formulario.
  */
 window.mostrarDetalleProducto = function(index) {
     let p = productos[index];
     idProductoSeleccionado = p.idProducto || p.id; 
 
-    // Llenado de campos
     document.getElementById("txtNombre").value = p.nombre;
     document.getElementById("txtPrecioCompra").value = p.precioCompra;
     document.getElementById("txtPrecioVenta").value = p.precioVenta;
     document.getElementById("txtExistencia").value = p.existencia;
     document.getElementById("cmbCategoria").value = p.categoria.id;
-    
-    console.log("Editando ID:", idProductoSeleccionado);
 };
 
-/**
- * Limpia el formulario para un nuevo registro.
- */
-window.limpiar = function() {
-    idProductoSeleccionado = 0;
-    document.getElementById("txtNombre").value = "";
-    document.getElementById("txtPrecioCompra").value = "";
-    document.getElementById("txtPrecioCompra").value = "";
-    document.getElementById("txtPrecioVenta").value = "";
-    document.getElementById("txtExistencia").value = "";
-    document.getElementById("cmbCategoria").value = "0";
-}
+// --- Sección de Operaciones (Guardar, Eliminar, Reactivar) ---
 
 /**
- * Muestra la alerta de confirmación antes de guardar.
+ * Pre-validación antes de guardar.
  */
-window.guardar = function() {
-    Swal.fire({
-        title: '¿Deseas guardar los cambios?',
-        text: "El producto se registrará en el sistema.",
-        icon: 'question',
-        showCancelButton: true,
-        confirmButtonColor: '#3085d6',
-        cancelButtonColor: '#d33',
-        confirmButtonText: 'Sí, guardar',
-        cancelButtonText: 'Cancelar'
-    }).then((result) => {
-        if (result.isConfirmed) {
-            ejecutarGuardar();
-        }
-    });
-}
-
-/**
- * Procesa el envío de datos al servidor.
- */
-async function ejecutarGuardar() {
+window.guardar = async function() {
     let nombreInput = document.getElementById("txtNombre").value.trim();
-    let pCompra = document.getElementById("txtPrecioCompra").value;
     let pVenta = document.getElementById("txtPrecioVenta").value;
+    let existencia = document.getElementById("txtExistencia").value;
     let idCat = document.getElementById("cmbCategoria").value;
-    
-    // CORRECCIÓN: Se extrae la existencia del DOM para evitar el ReferenceError
-    let existencia = document.getElementById("txtExistencia").value; 
 
-    // Validación de campos obligatorios
+    // 1. Campos obligatorios
     if (nombreInput === "" || pVenta === "" || existencia === "" || idCat === "0") {
         Swal.fire("Campos incompletos", "Por favor, llena todos los campos.", "warning");
         return;
     }
 
-    // LÓGICA ANTIDUPLICADOS: Solo para registros nuevos
+    // 2. Lógica Antiduplicados Global (Incluso en inactivos)
     if (idProductoSeleccionado === 0) {
-        let existe = productos.some(p => p.nombre.toLowerCase() === nombreInput.toLowerCase());
-        if (existe) {
-            Swal.fire("Producto duplicado", `El producto "${nombreInput}" ya existe en el catálogo.`, "warning");
+        let respValidar = await fetch("../api/producto/getAllInclusoInactivos");
+        let todosLosProductos = await respValidar.json();
+
+        let productoExistente = todosLosProductos.find(p => 
+            p.nombre.toLowerCase() === nombreInput.toLowerCase()
+        );
+
+        if (productoExistente) {
+            if (productoExistente.estatus === 0) {
+                Swal.fire({
+                    title: "Producto en Inactivos",
+                    text: `"${nombreInput}" ya existe pero está desactivado. ¿Deseas reactivarlo?`,
+                    icon: "info",
+                    showCancelButton: true,
+                    confirmButtonText: "Sí, reactivar",
+                    cancelButtonText: "Cancelar"
+                }).then((result) => {
+                    if (result.isConfirmed) reactivarProducto(productoExistente.id);
+                });
+            } else {
+                Swal.fire("Producto duplicado", `El producto "${nombreInput}" ya está activo.`, "warning");
+            }
             return; 
         }
     }
 
-    // Construcción del objeto producto según el modelo Java
+    // 3. Confirmación de guardado
+    Swal.fire({
+        title: '¿Deseas guardar los cambios?',
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonText: 'Sí, guardar'
+    }).then((result) => {
+        if (result.isConfirmed) ejecutarGuardar();
+    });
+}
+
+/**
+ * Envío de datos al servidor.
+ */
+async function ejecutarGuardar() {
     let producto = {
         id: idProductoSeleccionado,
-        nombre: nombreInput,
-        precioCompra: parseFloat(pCompra) || 0,
-        precioVenta: parseFloat(pVenta),
-        existencia: parseFloat(existencia),
-        categoria: { id: parseInt(idCat) },
+        nombre: document.getElementById("txtNombre").value.trim(),
+        precioCompra: parseFloat(document.getElementById("txtPrecioCompra").value) || 0,
+        precioVenta: parseFloat(document.getElementById("txtPrecioVenta").value),
+        existencia: parseFloat(document.getElementById("txtExistencia").value),
+        categoria: { id: parseInt(document.getElementById("cmbCategoria").value) },
         estatus: 1
     };
 
@@ -160,9 +216,9 @@ async function ejecutarGuardar() {
         if (res.exception) {
             Swal.fire("Error", res.exception, "error");
         } else {
-            Swal.fire("¡Éxito!", "El producto se ha guardado correctamente.", "success");
-            consultarProductos();
+            Swal.fire("¡Éxito!", "Operación realizada correctamente.", "success");
             limpiar();
+            mostrandoInactivos ? consultarInactivos() : consultarProductos();
         }
     } catch (error) {
         Swal.fire("Error de conexión", "No se pudo comunicar con el servidor.", "error");
@@ -170,7 +226,7 @@ async function ejecutarGuardar() {
 }
 
 /**
- * Lógica para eliminación lógica (cambio de estatus a 0).
+ * Eliminación lógica (cambio de estatus a 0).
  */
 window.eliminar = function() {
     if (idProductoSeleccionado === 0) {
@@ -184,13 +240,9 @@ window.eliminar = function() {
         icon: 'warning',
         showCancelButton: true,
         confirmButtonColor: '#d33',
-        cancelButtonColor: '#3085d6',
-        confirmButtonText: 'Sí, eliminar',
-        cancelButtonText: 'Cancelar'
+        confirmButtonText: 'Sí, eliminar'
     }).then((result) => {
-        if (result.isConfirmed) {
-            ejecutarEliminacion();
-        }
+        if (result.isConfirmed) ejecutarEliminacion();
     });
 }
 
@@ -213,6 +265,46 @@ async function ejecutarEliminacion() {
 }
 
 /**
+ * Reactivación de un producto (cambio de estatus a 1).
+ */
+window.reactivarProducto = async function(id) {
+    let params = { id: id };
+    try {
+        await fetch("../api/producto/activate", {
+            method: "POST",
+            headers: { "Content-Type": "application/x-www-form-urlencoded" },
+            body: new URLSearchParams(params)
+        });
+        Swal.fire("Reactivado", "El producto vuelve a estar disponible.", "success");
+        
+        // Resetear vista a activos después de reactivar
+        mostrandoInactivos = false;
+        const btn = document.getElementById("btnToggleInactivos");
+        btn.innerHTML = '<i class="fas fa-eye-slash"></i> Ver Inactivos';
+        btn.className = "btn btn-outline-secondary btn-sm";
+        
+        consultarProductos();
+        limpiar();
+    } catch (e) {
+        Swal.fire("Error", "No se pudo reactivar el producto.", "error");
+    }
+}
+
+// --- Sección de Funciones Auxiliares ---
+
+/**
+ * Limpia el formulario para un nuevo registro.
+ */
+window.limpiar = function() {
+    idProductoSeleccionado = 0;
+    document.getElementById("txtNombre").value = "";
+    document.getElementById("txtPrecioCompra").value = "";
+    document.getElementById("txtPrecioVenta").value = "";
+    document.getElementById("txtExistencia").value = "";
+    document.getElementById("cmbCategoria").value = "0";
+}
+
+/**
  * Carga las categorías existentes para el selector (combo).
  */
 export async function cargarCategorias() {
@@ -231,7 +323,6 @@ export async function cargarCategorias() {
             opt.innerHTML = c.nombre; 
             select.appendChild(opt);
         });
-        // CORRECCIÓN: Asignación a la variable global declarada al inicio
         categoriasCargadas = datos; 
     } catch (e) {
         console.error("Error al cargar categorías:", e);

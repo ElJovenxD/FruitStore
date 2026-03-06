@@ -71,4 +71,52 @@ public class RESTProducto {
         }
         return Response.status(Response.Status.OK).entity(out).build();
     }
+    
+    @Path("getAllInactivos")
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getAllInactivos() {
+        String out = "";
+        try {
+            ControllerProducto cp = new ControllerProducto();
+            List<Producto> productos = cp.getAllInactivos();
+            out = new Gson().toJson(productos);
+        } catch (Exception e) {
+            e.printStackTrace();
+            out = "{\"exception\":\"Error al recuperar inactivos.\"}";
+        }
+        return Response.status(Response.Status.OK).entity(out).build();
+    }
+
+    @Path("activate")
+    @POST
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response activate(@FormParam("id") @DefaultValue("0") int id) {
+        String out = "";
+        try {
+            ControllerProducto cp = new ControllerProducto();
+            cp.reactivar(id);
+            out = "{\"result\":\"OK\"}";
+        } catch (Exception e) {
+            e.printStackTrace();
+            out = "{\"exception\":\"Error al reactivar el producto.\"}";
+        }
+        return Response.status(Response.Status.OK).entity(out).build();
+    }
+    @Path("getAllInclusoInactivos")
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getAllInclusoInactivos() {
+        String out = "";
+        try {
+            ControllerProducto cp = new ControllerProducto();
+            // Asegúrate de que este método exista en tu ControllerProducto.java
+            List<Producto> productos = cp.getAllInclusoInactivos(); 
+            out = new Gson().toJson(productos);
+        } catch (Exception e) {
+            e.printStackTrace();
+            out = "{\"exception\":\"Error al recuperar todos los productos.\"}";
+        }
+        return Response.status(Response.Status.OK).entity(out).build();
+    }
 }

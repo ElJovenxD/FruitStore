@@ -71,25 +71,38 @@
                 <button class="btn btn-success" onclick="limpiar()">✨ Nuevo</button>
             </div>
         </div>
-
         <div class="card p-4 shadow-sm">
-            <h3>Catálogo de Productos</h3>
-            <table class="table table-hover">
-                <thead class="table-light">
-                    <tr>
-                        <th>Nombre</th><th>Categoría</th><th>Precio compra</th><th>Precio venta</th><th>Existencia</th><th>Estatus</th><th>Acciones</th>
-                    </tr>
-                </thead>
-                <tbody id="tbodyProductos">
-                    </tbody>
-            </table>
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h3 class="mb-0">Catálogo de Productos</h3>
+                <button id="btnToggleInactivos" class="btn btn-outline-secondary btn-sm" onclick="toggleInactivos()">
+                    <i class="fas fa-eye-slash"></i> Ver Inactivos
+                </button>
+            </div>
+
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Nombre</th>
+                            <th>Categoría</th>
+                            <th>Precio compra</th>
+                            <th>Precio venta</th>
+                            <th>Existencia</th>
+                            <th>Estatus</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tbodyProductos"></tbody>
+                </table>
+            </div>
         </div>
-    </div>
     <script src="../style/sweetalert2/sweetalert2.all.min.js"></script>
     <script src="../js/fruitstore_sec.js"></script>
     <script src="../js/producto.js"></script> 
     <script src="../style/bootstrap/js/bootstrap.bundle.min.js"></script>
+
     <script type="module">
+        // Al usar "import", el navegador ya sabe de dónde sacar las funciones.
         import { inicializarModulo } from '../js/producto.js';
         document.addEventListener("DOMContentLoaded", () => {
             inicializarModulo();
