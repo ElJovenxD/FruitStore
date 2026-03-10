@@ -38,6 +38,7 @@ public class Vendedor
     String email;
     String fechaAlta;
     int estatus;
+    private Usuario usuario;
 
     public int getId()
     {
@@ -199,5 +200,12 @@ public class Vendedor
         this.estatus = estatus;
     }
     
-    
+
+    public Usuario getUsuario() {
+        return usuario;
+    }
+
+    public void setUsuario(Usuario usuario) {
+        this.usuario = usuario;
+    }
 }

@@ -9,6 +9,7 @@ import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import java.util.List;
@@ -19,11 +20,12 @@ public class RESTVendedor {
     @Path("getAll")
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getAll() {
+    public Response getAll(@QueryParam("estatus") @DefaultValue("1") int estatus) {
         String out = "";
         try {
             ControllerVendedor cv = new ControllerVendedor();
-            List<Vendedor> vendedores = cv.getAll("");
+            // Se asume que el getAll ya recibe el filtro de estatus en el Controller
+            List<Vendedor> vendedores = cv.getAll("", estatus); 
             out = new Gson().toJson(vendedores);
         } catch (Exception e) {
             e.printStackTrace();
@@ -32,27 +34,29 @@ public class RESTVendedor {
         return Response.status(Response.Status.OK).entity(out).build();
     }
 
-    // ESTE ES EL MÉTODO QUE DEBES AGREGAR:
     @Path("save")
     @POST
     @Produces(MediaType.APPLICATION_JSON)
-    public Response save(@FormParam("datosVendedor") @DefaultValue("") String datosVendedor) {
+    public Response save(@FormParam("datosVendedor") @DefaultValue("") String datosVendedor,
+                         @FormParam("usuario") @DefaultValue("") String usuario,
+                         @FormParam("password") @DefaultValue("") String password) {
         String out = "";
         Gson gson = new Gson();
         try {
-            // Convierte el JSON que viene del JS a un objeto Vendedor
             Vendedor v = gson.fromJson(datosVendedor, Vendedor.class);
             ControllerVendedor cv = new ControllerVendedor();
 
             if (v.getId() == 0) {
-                cv.insert(v); // Crea el nuevo registro
+                // Inserta vendedor y crea su usuario simultáneamente
+                cv.insert(v, usuario, password); 
             } else {
-                cv.update(v); // Actualiza el existente
+                // Actualiza datos del vendedor
+                cv.update(v);
             }
             out = gson.toJson(v);
         } catch (Exception e) {
             e.printStackTrace();
-            out = "{\"exception\":\"Error interno en el servidor al guardar.\"}";
+            out = "{\"exception\":\"Error al guardar: " + e.getMessage() + "\"}";
         }
         return Response.status(Response.Status.OK).entity(out).build();
     }
@@ -64,11 +68,30 @@ public class RESTVendedor {
         String out = "";
         try {
             ControllerVendedor cv = new ControllerVendedor();
-            cv.delete(id);
+            cv.delete(id); // Baja lógica (estatus = 0)
             out = "{\"result\":\"Vendedor eliminado correctamente\"}";
         } catch (Exception e) {
             e.printStackTrace();
             out = "{\"exception\":\"Error al eliminar vendedor\"}";
+        }
+        return Response.status(Response.Status.OK).entity(out).build();
+    }
+
+    /**
+     * Endpoint para reactivar un vendedor (estatus = 1).
+     */
+    @Path("reactivate")
+    @POST
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response reactivate(@FormParam("id") int id) {
+        String out = "";
+        try {
+            ControllerVendedor cv = new ControllerVendedor();
+            cv.reactivar(id); // Llama al método del Controller
+            out = "{\"result\":\"Vendedor reactivado correctamente\"}";
+        } catch (Exception e) {
+            e.printStackTrace();
+            out = "{\"exception\":\"Error al reactivar vendedor: " + e.getMessage() + "\"}";
         }
         return Response.status(Response.Status.OK).entity(out).build();
     }

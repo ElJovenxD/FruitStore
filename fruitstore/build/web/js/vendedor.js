@@ -2,29 +2,36 @@ let vendedores = [];
 let idVendedorSeleccionado = 0;
 
 /**
- * Función principal que arranca el módulo.
+ * Arranca el módulo y configura los eventos.
  */
 export async function inicializarModulo() {
+    // Configura el switch de inactivos
+    const chkInactivos = document.getElementById("chkMostrarInactivos");
+    if (chkInactivos) {
+        chkInactivos.onclick = () => {
+            consultarVendedores();
+            limpiar();
+        };
+    }
     await consultarVendedores();
-    limpiar(); 
+    limpiar();
 }
 
 /**
- * Obtiene todos los vendedores del servidor.
+ * Consulta vendedores según el estatus del switch.
  */
 async function consultarVendedores() {
-    let url = "../api/vendedor/getAll";
+    const mostrarInactivos = document.getElementById("chkMostrarInactivos").checked;
+    const estatusBusqueda = mostrarInactivos ? 0 : 1;
+
+    let url = `../api/vendedor/getAll?estatus=${estatusBusqueda}`;
+
     try {
         let resp = await fetch(url);
         let datos = await resp.json();
 
-        if (datos.error != null) {
-            Swal.fire("", "Error al consultar vendedores", "warning");
-            return;
-        }
-
-        if (datos.exception != null) {
-            Swal.fire("", datos.exception, "danger");
+        if (datos.exception) {
+            Swal.fire("Error", datos.exception, "error");
             return;
         }
 
@@ -35,37 +42,33 @@ async function consultarVendedores() {
     }
 }
 
-/**
- * Llena la tabla de vendedores.
- */
 function fillTableVendedores() {
     let contenido = '';
-    for (let i = 0; i < vendedores.length; i++) {
-        let v = vendedores[i];
-        contenido += `<tr>
-                        <td>${v.nombre}</td>
-                        <td>${v.email}</td>
-                        <td>${v.ciudad}</td>
-                        <td>${v.telefono}</td>
-                        <td class="text-center">
-                            <a href="#" onclick="mostrarDetalleVendedor(${i});">
-                                <i class="fas fa-eye text-info"></i> Modificar
-                            </a>
-                        </td>
-                     </tr>`;
-    }
+    vendedores.forEach((v, i) => {
+        contenido += `
+            <tr>
+                <td>${v.nombre}</td>
+                <td>${v.email}</td>
+                <td>${v.ciudad}</td>
+                <td>${v.telefono}</td>
+                <td class="text-center">
+                    <button class="btn btn-sm btn-outline-info" onclick="mostrarDetalleVendedor(${i})">
+                        <i class="fas fa-eye"></i> Ver Detalle
+                    </button>
+                </td>
+            </tr>`;
+    });
     document.getElementById("tbodyVendedores").innerHTML = contenido;
 }
 
-/**
- * Carga todos los datos del vendedor al formulario.
- */
-window.mostrarDetalleVendedor = function(index) {
+window.mostrarDetalleVendedor = function (index) {
     let v = vendedores[index];
     idVendedorSeleccionado = v.id;
 
+    // Llenado de campos (Asegúrate de que los IDs coincidan con tu HTML)
     document.getElementById("txtId").value = v.id;
     document.getElementById("txtNombre").value = v.nombre;
+    document.getElementById("txtEstatus").value = v.estatus === 1 ? "Activo" : "Inactivo";
     document.getElementById("txtFechaNac").value = v.fechaNacimiento;
     document.getElementById("cmbGenero").value = v.genero;
     document.getElementById("txtEmail").value = v.email;
@@ -79,59 +82,66 @@ window.mostrarDetalleVendedor = function(index) {
     document.getElementById("txtCiudad").value = v.ciudad;
     document.getElementById("txtEstado").value = v.estado;
     document.getElementById("txtPais").value = v.pais;
+
+    if (v.usuario) {
+        document.getElementById("txtUsuario").value = v.usuario.nombre || "";
+        document.getElementById("txtPassword").value = v.usuario.contrasenia || "";
+    } else {
+        document.getElementById("txtUsuario").value = "";
+        document.getElementById("txtPassword").value = "";
+    }
+
+    // Lógica de botones
+    const btnReactivar = document.getElementById("btnReactivar");
+    const btnEliminar = document.getElementById("btnEliminar");
+    const badge = document.getElementById("badgeEstatus");
+
+    if (v.estatus === 0) {
+        btnReactivar.classList.remove("d-none");
+        btnEliminar.classList.add("d-none");
+        if (badge) { badge.textContent = "Inactivo"; badge.className = "badge bg-danger"; }
+    } else {
+        btnReactivar.classList.add("d-none");
+        btnEliminar.classList.remove("d-none");
+        if (badge) { badge.textContent = "Activo"; badge.className = "badge bg-success"; }
+    }
 };
 
-/**
- * Limpia el formulario y prepara para un nuevo registro.
- */
-window.limpiar = function() {
+window.limpiar = function () {
     idVendedorSeleccionado = 0;
-    const campos = ["txtId", "txtNombre", "txtFechaNac", "txtEmail", "txtTelefono", 
-                    "txtCalle", "txtNumExt", "txtNumInt", "txtColonia", 
-                    "txtCp", "txtCiudad", "txtEstado", "txtPais"];
-    
-    campos.forEach(id => {
+    const ids = ["txtId", "txtNombre", "txtFechaNac", "txtEmail", "txtTelefono", "txtCalle", "txtNumExt", "txtNumInt", "txtColonia", "txtCp", "txtCiudad", "txtEstado", "txtPais", "txtUsuario", "txtPassword"];
+    ids.forEach(id => {
         let el = document.getElementById(id);
-        if(el) el.value = "";
+        if (el) el.value = "";
     });
-    
+
     document.getElementById("cmbGenero").value = "M";
-    
-    // Fecha de alta automática para el día de hoy
-    const hoy = new Date().toISOString().split('T')[0];
-    document.getElementById("txtFechaAlta").value = hoy;
+    document.getElementById("txtEstatus").value = "Activo";
+    document.getElementById("txtFechaAlta").value = new Date().toISOString().split('T')[0];
+
+    document.getElementById("btnReactivar").classList.add("d-none");
+    document.getElementById("btnEliminar").classList.remove("d-none");
 };
 
-/**
- * Confirmación de Guardado.
- */
-window.guardar = function() {
-    const nombre = document.getElementById("txtNombre").value.trim();
-    if (nombre === "") {
+window.guardar = function () {
+    if (document.getElementById("txtNombre").value.trim() === "") {
         Swal.fire("Aviso", "El nombre es obligatorio", "warning");
         return;
     }
-
     Swal.fire({
-        title: '¿Deseas guardar al vendedor?',
+        title: '¿Guardar cambios?',
         icon: 'question',
         showCancelButton: true,
-        confirmButtonText: 'Sí, guardar',
-        cancelButtonText: 'Cancelar'
-    }).then((result) => {
-        if (result.isConfirmed) {
-            ejecutarGuardar();
-        }
-    });
+        confirmButtonText: 'Sí'
+    }).then((r) => { if (r.isConfirmed) ejecutarGuardar(); });
 };
 
 async function ejecutarGuardar() {
-    // Construcción del objeto siguiendo la estructura del Modelo Vendedor.java
     let vendedor = {
         id: idVendedorSeleccionado,
         nombre: document.getElementById("txtNombre").value,
         genero: document.getElementById("cmbGenero").value,
-        fechaNacimiento: document.getElementById("txtFechaNac").value, // Debe ser exactamente fechaNacimiento
+        fechaNacimiento: document.getElementById("txtFechaNac").value,
         email: document.getElementById("txtEmail").value,
         telefono: document.getElementById("txtTelefono").value,
         fechaAlta: document.getElementById("txtFechaAlta").value,
@@ -146,9 +156,10 @@ async function ejecutarGuardar() {
         estatus: 1
     };
 
-    // Formateo de parámetros para @FormParam en el REST
     let params = new URLSearchParams();
     params.append("datosVendedor", JSON.stringify(vendedor));
+    params.append("usuario", document.getElementById("txtUsuario").value);
+    params.append("password", document.getElementById("txtPassword").value);
 
     try {
         let resp = await fetch("../api/vendedor/save", {
@@ -156,66 +167,50 @@ async function ejecutarGuardar() {
             headers: { "Content-Type": "application/x-www-form-urlencoded" },
             body: params
         });
-
         let res = await resp.json();
-        
-        if (res.exception) {
-            Swal.fire("Error", res.exception, "error");
-        } else {
-            Swal.fire("¡Éxito!", "Vendedor procesado correctamente.", "success");
+        if (res.exception) Swal.fire("Error", res.exception, "error");
+        else {
+            Swal.fire("Éxito", "Guardado correctamente", "success");
             consultarVendedores();
             limpiar();
         }
-    } catch (error) {
-        console.error("Error en la conexión:", error);
-        Swal.fire("Error", "No se pudo conectar con el servidor.", "error");
-    }
+    } catch (e) { Swal.fire("Error", "No hay conexión", "error"); }
 }
 
-/**
- * Eliminación lógica del vendedor.
- */
-window.eliminar = function() {
-    if (idVendedorSeleccionado === 0) {
-        Swal.fire("Aviso", "Selecciona un vendedor de la tabla.", "info");
-        return;
-    }
-
+window.eliminar = function () {
+    if (idVendedorSeleccionado === 0) return;
     Swal.fire({
-        title: '¿Eliminar vendedor?',
-        text: "El registro cambiará a estatus inactivo.",
+        title: '¿Dar de baja?',
         icon: 'warning',
         showCancelButton: true,
-        confirmButtonColor: '#d33',
-        confirmButtonText: 'Sí, eliminar',
-        cancelButtonText: 'Cancelar'
-    }).then((result) => {
-        if (result.isConfirmed) {
-            ejecutarEliminacion();
-        }
-    });
+        confirmButtonText: 'Eliminar'
+    }).then((r) => { if (r.isConfirmed) ejecutarAccion("../api/vendedor/delete"); });
 };
 
-async function ejecutarEliminacion() {
+window.reactivar = function () {
+    Swal.fire({
+        title: '¿Reactivar?',
+        icon: 'info',
+        showCancelButton: true,
+        confirmButtonText: 'Reactivar'
+    }).then((r) => { if (r.isConfirmed) ejecutarAccion("../api/vendedor/reactivate"); });
+};
+
+async function ejecutarAccion(url) {
     let params = new URLSearchParams();
     params.append("id", idVendedorSeleccionado);
-
     try {
-        let resp = await fetch("../api/vendedor/delete", {
+        let resp = await fetch(url, {
             method: "POST",
             headers: { "Content-Type": "application/x-www-form-urlencoded" },
             body: params
         });
-
         let res = await resp.json();
-        if (res.exception) {
-            Swal.fire("Error", res.exception, "error");
-        } else {
-            Swal.fire("Eliminado", "Vendedor desactivado con éxito.", "success");
+        if (res.exception) Swal.fire("Error", res.exception, "error");
+        else {
+            Swal.fire("Listo", "Operación exitosa", "success");
             consultarVendedores();
             limpiar();
         }
-    } catch (error) {
-        Swal.fire("Error", "No se pudo realizar la eliminación.", "error");
-    }
-}
+    } catch (e) { Swal.fire("Error", "Error de red", "error"); }
+}   

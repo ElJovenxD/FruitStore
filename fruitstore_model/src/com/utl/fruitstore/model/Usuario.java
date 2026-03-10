@@ -1,4 +1,4 @@
-package com.utl.fruitstore.model;
+    package com.utl.fruitstore.model;
 
 public class Usuario
 {
